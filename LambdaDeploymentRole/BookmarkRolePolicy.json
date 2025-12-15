@@ -1,0 +1,60 @@
+{
+    "Statement": [
+        {
+            "Action": [
+                "dynamodb:GetItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:PutItem",
+                "dynamodb:Scan",
+                "dynamodb:Query",
+                "dynamodb:UpdateItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:BatchGetItem",
+                "dynamodb:DescribeTable",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:DescribeStream",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:ListStreams"
+            ],
+            "Resource": [
+                "arn:aws:dynamodb:us-east-1:516399452868:table/bookmarksTable",
+                "arn:aws:dynamodb:us-east-1:516399452868:table/bookmarksTable/stream/*"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "events:PutRule",
+                "events:PutTargets",
+                "events:PutEvents",
+                "events:Describe*",
+                "events:List*"
+            ],
+            "Resource": [
+                "arn:aws:events:us-east-1:516399452868:rule/bookmarks-bus/notify-rule",
+                "arn:aws:events:us-east-1:516399452868:rule/bookmarks-bus/contest-rule",
+                "arn:aws:events:us-east-1:516399452868:rule/bookmarks-bus/catch-all-rule",
+                "arn:aws:events:us-east-1:516399452868:event-bus/bookmarks-bus"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "sns:Publish"
+            ],
+            "Resource": [
+                "arn:aws:sns:us-east-1:516399452868:BookmarkTopic",
+                "arn:aws:sns:us-east-1:516399452868:ContestTopic"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "states:SendTaskSuccess"
+            ],
+            "Resource": "arn:aws:states:us-east-1:516399452868:stateMachine:PublishStateMachine-*",
+            "Effect": "Allow"
+        }
+    ]
+}

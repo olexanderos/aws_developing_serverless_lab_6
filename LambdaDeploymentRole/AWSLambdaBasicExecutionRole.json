@@ -1,0 +1,16 @@
+{
+    "Statement": [
+        {
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "arn:aws:logs:us-east-1:516399452868:log-group:/aws/lambda/getBookmark:log-stream:*",
+                "arn:aws:logs:us-east-1:516399452868:log-group:/aws/lambda/getBookmark:*"
+            ],
+            "Effect": "Allow"
+        }
+    ]
+}

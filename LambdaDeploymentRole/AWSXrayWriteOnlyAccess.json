@@ -1,0 +1,15 @@
+{
+    "Statement": [
+        {
+            "Action": [
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords",
+                "xray:GetSamplingRules",
+                "xray:GetSamplingTargets",
+                "xray:GetSamplingStatisticSummaries"
+            ],
+            "Resource": "*",
+            "Effect": "Allow"
+        }
+    ]
+}
