@@ -1,0 +1,9 @@
+{
+  "name": "streamTrigger",
+  "version": "1.0.0",
+  "private": true,
+    "type": "module",
+  "dependencies": {
+    "aws-xray-sdk": "^3.1.0"
+  }
+}

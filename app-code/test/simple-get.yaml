@@ -1,0 +1,20 @@
+config:
+  target: '(Replace with APIGateway Invoke URL)'
+  phases:
+    - duration: 20
+      arrivalRate: 10
+  defaults:
+    headers:
+      x-my-service-auth: '987401838271002188298567'
+scenarios:
+  - flow:
+    - get:
+        url: "/bookmarks/62517296-c2d1-45e3-b746-6bb80217abe3"
+    - get:
+        url: "/bookmarks/faf68666-a2bc-479f-81fb-7f478ea5ce12"
+    - get:
+        url: "/bookmarks/ee75b77b-f8bc-497a-8d36-6d65fd8da535"
+    - get:
+        url: "/bookmarks/15024365-c703-4605-85c5-2059ab9482f3"
+    - get:
+        url: "/bookmarks/0dbf6ba5-bfbb-4e34-919f-00588f385473"

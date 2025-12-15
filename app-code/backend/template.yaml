@@ -1,0 +1,655 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Bookmarks - A simple Serverless App using AWS SAM
+Globals:
+  Function:
+    Handler: index.handler
+    Runtime: nodejs20.x
+    MemorySize: 512
+    Timeout: 30
+    Tracing: Active
+
+Resources:
+  api:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub
+        - Bookmark App
+        - ResourceName: /bookmarks
+      StageName: !Ref APIGatewayStageName
+      Cors:
+        AllowMethods: "'POST, GET, DELETE, PUT, PATCH, ANY'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+      DefinitionBody:
+        swagger: '2.0'
+        info: {}
+        paths:
+          /bookmarks:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${listBookmarks.Arn}/invocations
+              responses: {}
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${createBookmark.Arn}/invocations
+              responses: {}
+          /bookmarks/{id}:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getBookmark.Arn}/invocations
+              responses: {}
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateBookmark.Arn}/invocations
+              responses: {}
+            delete:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${deleteBookmark.Arn}/invocations
+              responses: {}
+          /bookmarks/approval:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userApproval.Arn}/invocations
+                responses: 
+                  "302":
+                    statusCode: "302"
+                    responseParameters:
+                      method.response.header.Location : "integration.response.body.headers.Location"
+                requestTemplates:
+                  application/json: |
+                    {
+                      "body" : $input.json('$'),
+                      "headers": {
+                        #foreach($header in $input.params().header.keySet())
+                        "$header": "$util.escapeJavaScript($input.params().header.get($header))" #if($foreach.hasNext),#end
+
+                        #end
+                      },
+                      "method": "$context.httpMethod",
+                      "params": {
+                        #foreach($param in $input.params().path.keySet())
+                        "$param": "$util.escapeJavaScript($input.params().path.get($param))" #if($foreach.hasNext),#end
+
+                        #end
+                      },
+                      "query": {
+                        #foreach($queryParam in $input.params().querystring.keySet())
+                        "$queryParam": "$util.escapeJavaScript($input.params().querystring.get($queryParam))" #if($foreach.hasNext),#end
+
+                        #end
+                      }
+                    }
+              responses:
+                "302":
+                  description: "success"
+                  headers:
+                    Location:
+                      type: "string"
+      EndpointConfiguration: 
+        Type: REGIONAL
+    Metadata:
+      FinTag: /bookmarks
+
+  getBookmark:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getBookmark
+      Description: !Sub
+        - ${ResourceName} Function 
+        - ResourceName: getBookmark
+      CodeUri: src/getBookmark
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref bookmarksTable
+          TABLE_ARN: !GetAtt bookmarksTable.Arn
+      Role: !Ref LambdaDeploymentRole
+      Events:
+        apiGET:
+          Type: Api
+          Properties:
+            Path: /bookmarks/{id}
+            Method: GET
+            RestApiId: !Ref api
+    Metadata:
+      FinTag: getBookmark
+
+  updateBookmark:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: updateBookmark
+      Description: !Sub
+        - ${ResourceName} Function
+        - ResourceName: updateBookmark
+      CodeUri: src/updateBookmark
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref bookmarksTable
+          TABLE_ARN: !GetAtt bookmarksTable.Arn
+      Role: !Ref LambdaDeploymentRole         
+      Events:
+        apiPUT:
+          Type: Api
+          Properties:
+            Path: /bookmarks/{id}
+            Method: PUT
+            RestApiId: !Ref api
+    Metadata:
+      FinTag: updateBookmark
+
+  createBookmark:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: createBookmark
+      Description: !Sub
+        - ${ResourceName} Function
+        - ResourceName: createBookmark
+      CodeUri: src/createBookmark
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref bookmarksTable
+          TABLE_ARN: !GetAtt bookmarksTable.Arn
+      Role: !Ref LambdaDeploymentRole
+      Events:
+        apiPOST:
+          Type: Api
+          Properties:
+            Path: /bookmarks
+            Method: POST
+            RestApiId: !Ref api
+    Metadata:
+      FinTag: createBookmark
+
+  deleteBookmark:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: deleteBookmark
+      Description: !Sub
+        - ${ResourceName} Function
+        - ResourceName: deleteBookmark
+      CodeUri: src/deleteBookmark
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref bookmarksTable
+          TABLE_ARN: !GetAtt bookmarksTable.Arn
+      Role: !Ref LambdaDeploymentRole          
+      Events:
+        apiDELETE:
+          Type: Api
+          Properties:
+            Path: /bookmarks/{id}
+            Method: DELETE
+            RestApiId: !Ref api
+    Metadata:
+      FinTag: deleteBookmark
+
+  listBookmarks:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: listBookmarks
+      Description: !Sub
+        - ${ResourceName} Function
+        - ResourceName: listBookmarks
+      CodeUri: src/listBookmarks
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref bookmarksTable
+          TABLE_ARN: !GetAtt bookmarksTable.Arn
+          INDEX_NAME: 'user-index'
+      Role: !Ref LambdaDeploymentRole         
+      Events:
+        apiGETAll:
+          Type: Api
+          Properties:
+            Path: /bookmarks
+            Method: GET
+            RestApiId: !Ref api
+    Metadata:
+      FinTag: listBookmarks
+
+  contest:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: contest
+      Description: !Sub
+        - ${ResourceName} Function
+        - ResourceName: contest
+      CodeUri: src/contest
+      Environment:
+        Variables:
+          TABLE_NAME: 
+            Ref: bookmarksTable
+      Role: !Ref LambdaDeploymentRole            
+    Metadata:
+      FinTag: contest
+  
+
+  bookmarksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: bookmarkUrl
+          AttributeType: S
+        - AttributeName: username
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TableName: bookmarksTable
+      GlobalSecondaryIndexes: 
+        - 
+          IndexName: "bookmarkUrl-index"
+          KeySchema: 
+            - 
+              AttributeName: "bookmarkUrl"
+              KeyType: "HASH"
+          Projection: 
+            ProjectionType: "ALL"
+          ProvisionedThroughput: 
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        -
+          IndexName: "user-index"
+          KeySchema:
+            -
+              AttributeName: "username"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+    Metadata:
+      FinTag: Bookmarks
+
+
+  streamTrigger:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: streamTrigger
+      Description: !Sub
+        - ${ResourceName} Function
+        - ResourceName: streamTrigger
+      CodeUri: src/streamTrigger
+      Role: !Ref LambdaDeploymentRole       
+    Metadata:
+      FinTag: streamTrigger
+  
+  userApproval:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: userApproval
+      Description: !Sub
+        - ${ResourceName} Function
+        - ResourceName: userApproval
+      CodeUri: src/userApproval
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref bookmarksTable
+          TABLE_ARN: !GetAtt bookmarksTable.Arn
+      Role: !Ref LambdaDeploymentRole          
+      Events:
+        apiUser:
+          Type: Api
+          Properties:
+            Path: /bookmarks/approval
+            Method: GET
+            RestApiId: !Ref api
+    Metadata:
+      FinTag: userApproval
+  
+  userApprovalEmail:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: userApprovalEmail
+      Description: !Sub
+        - ${ResourceName} Function
+        - ResourceName: userApprovalEmail
+      CodeUri: src/userApprovalEmail
+      Environment:
+        Variables:
+          contestSnsTopic: !Ref SNSContestTopic
+      Role: !Ref LambdaDeploymentRole           
+    Metadata:
+      FinTag: userApprovalEmail
+
+  validateURL:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: validateURL
+      Description: !Sub
+        - ${ResourceName} Function
+        - ResourceName: validateURL
+      CodeUri: src/validateURL
+      Environment:
+        Variables:
+          contestSnsTopic: !Ref SNSContestTopic
+      Role: !Ref LambdaDeploymentRole          
+    Metadata:
+      FinTag: validateURL
+
+  publishApproval:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: publishApproval
+      Description: !Sub
+        - ${ResourceName} Function
+        - ResourceName: publishApproval
+      CodeUri: src/publishApproval
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref bookmarksTable
+          TABLE_ARN: !GetAtt bookmarksTable.Arn
+          contestSnsTopic: !Ref SNSContestTopic
+      Role: !Ref LambdaDeploymentRole           
+    Metadata:
+      FinTag: publishApproval
+
+  duplicateCheck:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: duplicateCheck
+      Description: !Sub
+        - ${ResourceName} Function
+        - ResourceName: duplicateCheck
+      CodeUri: src/duplicateCheck
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref bookmarksTable
+          TABLE_ARN: !GetAtt bookmarksTable.Arn
+          contestSnsTopic: !Ref SNSContestTopic
+          INDEX_NAME: "bookmarkUrl-index"  
+      Role: !Ref LambdaDeploymentRole          
+
+  EventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 1
+      EventSourceArn: 
+        Fn::GetAtt:
+          - "bookmarksTable"
+          - "StreamArn"
+      FunctionName: 
+        Fn::GetAtt:
+          - "streamTrigger"
+          - "Arn"
+      Enabled: true
+      StartingPosition: TRIM_HORIZON
+    
+  SNSBookmarkTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: BookmarkTopic
+
+  SNSContestTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: ContestTopic
+      
+  EventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: bookmarks-bus
+  
+  EventBridgeCatchAllRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: catch-all-rule
+      Description: 'catch all rule for cloudwatch logs'
+      EventBusName: !Ref EventBus
+      EventPattern: 
+        source: 
+          - "DynamoDB Streams"
+        detail-type: 
+          - "Shared Bookmarks"
+        detail:
+          shared: 
+            - true
+      Targets:
+        - Arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${CloudWatchLogGroup}"
+          Id: CloudWatchLogGroup
+
+  CloudWatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/events/catch-all
+
+  EventBridgeContestRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: contest-rule
+      Description: 'contest rule'
+      EventBusName: !Ref EventBus
+      EventPattern: 
+        source: 
+          - "DynamoDB Streams"
+        detail-type: 
+          - "Shared Bookmarks"
+        detail:
+          shared: 
+            - true
+          contest: 
+            - "Entering"
+      Targets:
+        - Arn: !GetAtt contest.Arn
+          Id: contest 
+  
+  PermissionForEventsToInvokeLambda: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: 
+        Ref: "contest"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: 
+        Fn::GetAtt: 
+          - EventBridgeContestRule
+          - Arn
+
+  EventBridgeNotifyRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: notify-rule
+      Description: 'notify rule'
+      EventBusName: !Ref EventBus
+      EventPattern: 
+        source: 
+          - "DynamoDB Streams"
+        detail-type: 
+          - "Shared Bookmarks"
+        detail:
+          shared: 
+            - true
+          contest: 
+            - anything-but: 
+                - "Approved"
+                - "Rejected" 
+      Targets:
+        - Arn: 
+            Ref: "SNSBookmarkTopic"
+          Id: "SNSBookmarkTopic" 
+  
+  EventTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties: 
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: 
+              Service: events.amazonaws.com
+            Action: 'sns:Publish'
+            Resource: '*'
+      Topics:
+        - !Ref SNSBookmarkTopic
+
+  PublishStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      RoleArn: !Ref StepFunctionsDeploymentRole
+      DefinitionString: !Sub
+        - |-
+          {
+            "Comment": "Publish Rule work flow",
+            "StartAt": "CheckDuplicates",
+            "States": {
+              "CheckDuplicates": {
+                "Type": "Task",
+                "Resource": "${DuplicateCheckFunctionArn}",
+                "InputPath":"$",
+                "ResultPath":"$.extractedMetadata",
+                "Catch": [
+                    {
+                      "ErrorEquals": [ "States.ALL" ],
+                      "Next": "NotifyUser"
+                    }
+                  ],
+                "Next": "DuplicateChoiceState"
+              },
+              "DuplicateChoiceState": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "Variable": "$.extractedMetadata",
+                      "StringEquals": "NotDuplicate",
+                      "Next": "NotDuplicate"
+                    },
+                    {
+                      "Variable": "$.extractedMetadata",
+                      "StringEquals": "Duplicate",
+                      "Next": "Duplicate"
+                    }
+                  ]
+                },
+              "NotDuplicate": {
+                "Type": "Pass",
+                "Next": "ValidateURL"
+              },
+              "Duplicate": {
+                "Type": "Pass",
+                "Next": "NotifyUser"
+              },
+              "ValidateURL":{
+                "Type": "Task",
+                "Resource": "${validateURLFunction}",
+                "InputPath":"$",
+                "ResultPath":"$.extractedMetadata",
+                "Catch": [
+                    {
+                      "ErrorEquals": [ "States.ALL" ],
+                      "Next": "NotifyUser"
+                    }
+                  ],
+                "Next": "ValidateChoiceState"
+                },
+              "ValidateChoiceState": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "Variable": "$.extractedMetadata",
+                      "StringEquals": "Valid",
+                      "Next": "UserApprovalEmail"
+                    },
+                    {
+                      "Variable": "$.extractedMetadata",
+                      "StringEquals": "Invalid",
+                      "Next": "NotifyUser"
+                    }
+                  ]
+                },
+              "UserApprovalEmail": {
+                "Type": "Task",
+                "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+                "InputPath":"$",
+                "ResultPath":"$.extractedMetadata",
+                "Parameters": {
+                  "FunctionName": "${userApprovalEmailFunction}",
+                  "Payload": {
+                    "ExecutionContext.$": "$$",
+                    "APIGatewayEndpoint": "https://${api}.execute-api.${AWS::Region}.amazonaws.com/${APIGatewayStageName}/"
+                  }
+                },
+                "Next": "ManualApprovalChoiceState"
+                  },
+                "ManualApprovalChoiceState": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "Variable": "$.extractedMetadata.Status",
+                      "StringEquals": "Approved",
+                      "Next": "PublishApproval"
+                    },
+                    {
+                      "Variable": "$.extractedMetadata.Status",
+                      "StringEquals": "Rejected",
+                      "Next": "NotifyUser"
+                    }
+                  ]
+                },
+            "PublishApproval":{
+              "Type": "Task",
+              "Resource": "${publishApprovalArn}",
+              "InputPath": "$",
+              "ResultPath": "$.extractedMetadata",
+              "Next": "NotifyUser"
+              },
+              "NotifyUser": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::sns:publish",
+                  "InputPath": "$",
+                  "Parameters": {
+                    "TopicArn": "${ContestTopicArn}",
+                    "Message.$": "$",
+                    "MessageAttributes": {
+                      "msg": {
+                        "DataType": "String",
+                        "StringValue": "additional instructions!"
+                      }
+                    }
+                  },
+                  "End": true
+                  }
+            }
+          }
+        - DuplicateCheckFunctionArn: !GetAtt duplicateCheck.Arn
+          validateURLFunction: !GetAtt validateURL.Arn
+          userApprovalEmailFunction: !GetAtt userApprovalEmail.Arn
+          publishApprovalArn: !GetAtt publishApproval.Arn
+          ContestTopicArn: !Ref SNSContestTopic
+             
+
+Parameters:
+  APIGatewayStageName:
+    Type: String
+    Default: dev
+    Description: Environment name used for API Gateway Stage names
+  LambdaDeploymentRole:
+    Type: String
+    Default: '<LAMBDA_ROLE_ARN>'
+    Description: Role arn used for Lambda functions in this SAM template    
+  StepFunctionsDeploymentRole:
+    Type: String
+    Default: '<STEP_FUNCTIONS_ROLE_ARN>'
+    Description: Role arn used for Step Functions in this SAM template
+  CodeDeployDeploymentRole:
+    Type: String
+    Default: '<SAM_CODEDEPLOY_ROLE_ARN>'
+    Description: Role arn used for lambda deployment preference in this SAM template         
