@@ -7,7 +7,8 @@ As you have learned, a key part of developing serverless applications is to use 
 
 The following diagram shows the architecture components that have been or will be deployed in this lab.
 
-IMG
+<img width="955" height="636" alt="image" src="https://github.com/user-attachments/assets/246926cc-31c9-42c8-8410-99bbd614dff5" />
+
 
 This lab uses the following services:
 
@@ -42,7 +43,7 @@ In this task, you look at the different services that you use in this lab and in
 
 **AWS CodeDeploy** is a fully managed deployment service that automates software deployments to a variety of compute services such as Amazon Elastic Compute Cloud (Amazon EC2), AWS Fargate, AWS Lambda, and your on-premises servers. CodeDeploy makes it easier for you to rapidly release new features, helps you avoid downtime during application deployment, and handles the complexity of updating your applications. You can use CodeDeploy to automate software deployments, which eliminates the need for error-prone manual operations. The service scales to match your deployment needs.
 
-6-10
+<img width="627" height="182" alt="image" src="https://github.com/user-attachments/assets/c48bbf0d-bf37-4545-b9c7-aa97eb9dea84" />
 
 ```bash
 cd app-code/backend
@@ -609,11 +610,11 @@ The pipeline should automatically begin the build process and deploy the AWS SAM
 
 Make sure that the deployment is completed successfully before moving on to the next step.
 
-68-69
+<img width="722" height="90" alt="image" src="https://github.com/user-attachments/assets/aa830d8f-f262-4841-9851-598cb209d157" />
 
 View the function code to review the updates that have been deployed.
 
-70
+<img width="537" height="28" alt="image" src="https://github.com/user-attachments/assets/e042f826-cadd-4c3c-801e-72fd6144b0c8" />
 
 ```bash
 source ~/environment/app-code/labVariables
@@ -633,7 +634,7 @@ In this task, you learn about canary deployments and how they play an important 
 
 Lambda allows you to publish multiple versions of the same function. Each version has its own code and associated dependencies, and its own function settings (such as memory allocation, timeout, and environment variables). You can then refer to a given version by using a Lambda alias. An alias is a name that can be pointed to a given version of a Lambda function.
 
-71-73
+<img width="745" height="114" alt="image" src="https://github.com/user-attachments/assets/d481ffd4-dfe5-4057-993f-51cb5809d4d4" />
 
 ```yaml
 ## Canary deployment configuration
@@ -691,7 +692,7 @@ Use the *Canary10Percent5Minutes* strategy for this lab, which means that traffi
 
 The *Linear* strategy means that traffic is shifted in equal increments with an equal time interval between each increment.
 
-74
+<img width="607" height="28" alt="image" src="https://github.com/user-attachments/assets/4a2a271d-4786-4674-8a7b-c6d5743e95e3" />
 
 ```bash
 cd ~/environment/app-code/backend
@@ -703,7 +704,7 @@ If the template is correct, a line appears that says the **template.yaml** file 
 > [!NOTE]
 > SAM validator may show a message such as: *“Feature ‘deployment_preference_condition_fix’ not available in Feature Toggle Config.”* You can safely ignore this message for now as the missing feature does not impact our current usage of SAM.
 
-75
+<img width="733" height="47" alt="image" src="https://github.com/user-attachments/assets/9a776fa2-da4a-44fa-8899-43dc1ce426b4" />
 
 ```bash
 cd ~/environment/app-code
@@ -714,8 +715,7 @@ git push
 
 Canary deployments are considerably more successful if the code is monitored during the deployment. You can configure CodeDeploy to automatically roll back the deployment if a specified Amazon CloudWatch metric has breached the alarm threshold. Common metrics to monitor are Lambda invocation errors or invocation duration (latency).
 
-
-76
+<img width="749" height="65" alt="image" src="https://github.com/user-attachments/assets/ac431270-4110-4d32-bc33-7ca3eef1a0cd" />
 
 ```yaml
 ##CloudWatch Alarm Canary Deployment
@@ -770,7 +770,7 @@ Metadata:
     Type: AWS::Serverless::Function
 ```
 
-77
+<img width="712" height="48" alt="image" src="https://github.com/user-attachments/assets/ab923ff6-2e6b-4e89-abb7-e5650c9589aa" />
 
 ```yaml
 ## Alarm preference
@@ -814,13 +814,13 @@ Metadata:
       FinTag: getBookmark
 ```
 
-78
+<img width="701" height="43" alt="image" src="https://github.com/user-attachments/assets/129e3940-c9fe-4de4-af03-358b31ecdffa" />
 
 ```
 uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getBookmark.Arn}/invocations
 ```
 
-79
+<img width="243" height="27" alt="image" src="https://github.com/user-attachments/assets/872e1ebf-f51f-430d-a7e7-c0d7b954c5b2" />
 
 ```
 uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getBookmark.Arn}:live/invocations
@@ -832,7 +832,7 @@ uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${g
 > [!NOTE]
 > Open the context (right-click) menu on this template.yaml link and choose the option to save the complete version of template.yaml file to your computer for reference.
 
-80
+<img width="598" height="24" alt="image" src="https://github.com/user-attachments/assets/e3f942b4-a159-4c56-9d1b-33a3fa136ad7" />
 
 ```bash
 cd ~/environment/app-code/backend
@@ -840,7 +840,7 @@ sam validate
 ```
 If the template is correct, a line appears that says the **template.yaml** file is a valid AWS SAM template. If an error appears, then you likely have an indentation issue on the .yaml file.
 
-81-82
+<img width="716" height="59" alt="image" src="https://github.com/user-attachments/assets/879043e3-2c59-408c-9bad-8517ec0f25be" />
 
 ```typescript
 return {
@@ -850,7 +850,8 @@ return {
   };
 ```
 
-83
+<img width="517" height="25" alt="image" src="https://github.com/user-attachments/assets/f995fd75-c8e2-44e5-ba43-ec24697edc8d" />
+
 
 ```bash
 cd ~/environment/app-code
@@ -859,7 +860,8 @@ git commit -m "Added CloudWatch alarm to monitor the canary"
 git push
 ```
 
-84-87
+<img width="743" height="190" alt="image" src="https://github.com/user-attachments/assets/72eaf074-f1d7-439a-acaf-8628a8f38fba" />
+
 
 ```bash
 source ~/environment/app-code/labVariables
@@ -878,13 +880,13 @@ done
 
 Wait 5 minutes until the remaining traffic is shifted to the new version. You can verify this shift by checking the **Deployment** details in the CodeDeploy console.
 
-88
+<img width="729" height="48" alt="image" src="https://github.com/user-attachments/assets/764ffe16-132a-4358-a5c8-f57f3d94de6b" />
 
 ### Rollbacks
 
 Monitoring the health of your canary allows CodeDeploy to make a decision about whether a rollback is needed or not. If any of the specified CloudWatch alarms gets to ALARM status, CodeDeploy rolls back the deployment automatically. Next, you break the Lambda function on purpose so that the **CanaryErrorsAlarm** alarm is invoked during deployment.
 
-89-90
+<img width="639" height="61" alt="image" src="https://github.com/user-attachments/assets/41845319-2d20-4834-9b1d-bde10212f0a5" />
 
 ```typescript
 export const handler = async message => {
@@ -892,7 +894,7 @@ export const handler = async message => {
 }
 ```
 
-91
+<img width="508" height="22" alt="image" src="https://github.com/user-attachments/assets/53bb489a-a09f-468a-b8c2-34c741f2ff0c" />
 
 ```bash
 cd ~/environment/app-code
@@ -902,7 +904,7 @@ git push
 ```
 In the CodePipeline console, wait for the pipeline to reach the deployment phase (Deploy). It should turn blue when it begins. While the deployment is running, you need to generate traffic to the new Lambda function to make it fail and invoke the CloudWatch alarm. In a real production environment, your users would likely generate organic traffic to the canary function, so you might not need to do this.
 
-92
+<img width="535" height="30" alt="image" src="https://github.com/user-attachments/assets/ee097a89-db1a-4568-ad14-6f9f3c063965" />
 
 ```bash
 source ~/environment/app-code/labVariables
@@ -915,3 +917,17 @@ do
     printf "\n"
 done
 ```
+
+> [!NOTE]
+> During deployment, only 10 percent of the traffic is routed to the new version, so the Lambda function is invoked many times by looping it. One out of 10 invocations should invoke the new broken Lambda function, which is what you want to do to cause a rollback.
+
+<img width="742" height="67" alt="image" src="https://github.com/user-attachments/assets/e4a828b9-55a2-4347-8dd8-0c47b5f8dae3" />
+
+## Conclusion
+**Congratulations!** You have successfully:
+
+* Created a CodeCommit repository and a CI/CD pipeline
+* Used AWS SAM to define the resources that your application needs and the AWS CDK to define the resources for the deployment infrastructure
+* Implemented canary deployments using AWS SAM
+* Monitored your canary deployment with CodeDeploy
+
