@@ -63,7 +63,7 @@ cd ..
 
 In this task, you create a repository (repo) and check in the source code. You could use any source repo (for example, GitHub), but for this lab, use CodeCommit.
 
-11
+<img width="625" height="24" alt="image" src="https://github.com/user-attachments/assets/5180ff08-75ae-441f-a930-b95066827285" />
 
 ```bash
 aws codecommit create-repository --repository-name app-code
@@ -86,7 +86,7 @@ The terminal displays the following output:
 ```
 CodeCommit supports AWS Identity and Access Management (IAM) authentication, and because you are running this from a VS Code IDE running on an Amazon Elastic Compute Cloud instance, you can leverage the fact that your terminal is already pre-authenticated with valid AWS credentials via an IAM Role.
 
-12
+<img width="602" height="27" alt="image" src="https://github.com/user-attachments/assets/c56abef4-ef45-48a0-aa26-3bcd000b3e02" />
 
 ```bash
 cd ~/environment/app-code
@@ -97,7 +97,7 @@ git commit -m "Initial commit"
 ```
 ### Push the code
 
-13
+<img width="745" height="49" alt="image" src="https://github.com/user-attachments/assets/79b61df0-0f3f-4380-ad96-f7035fd1f42a" />
 
 ```bash
 TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -109,13 +109,13 @@ git remote add origin codecommit::${AWS_REGION}://app-code
 > [!NOTE]
 > This code adds your local git project to the CodeCommit repository *app-code* using the HTTPS(GRC) URL *codecommit::<AWS_REGION>://<CODECOMMIT_REPO_NAME>.*
 
-14
+<img width="743" height="51" alt="image" src="https://github.com/user-attachments/assets/db2cb4e8-516e-448e-a6f5-43656a9de02c" />
 
 ```bash
 pip install git-remote-codecommit
 ```
 
-15
+<img width="435" height="27" alt="image" src="https://github.com/user-attachments/assets/7553d2f8-9f97-4370-a4da-89ca126b3d6a" />
 
 ```bash
 git push -u origin main
@@ -123,7 +123,7 @@ git push -u origin main
 
 ### Verify in CodeCommit
 
-16-17
+<img width="723" height="85" alt="image" src="https://github.com/user-attachments/assets/f5dc925d-5172-493d-8118-3f4ee3781f76" />
 
 ## Task 3: Building the CI/CD pipeline
 
@@ -137,7 +137,7 @@ You use the AWS CDK as the pipeline vending mechanism in this lab. The AWS CDK i
 
 Serverless developers use the AWS SAM framework to define their applications, the AWS SAM CLI to build and deploy them, and the AWS CDK to provision any infrastructure-related resources, such as the CI/CD pipeline. All of these tools share one underlying service: CloudFormation.
 
-18
+<img width="734" height="48" alt="image" src="https://github.com/user-attachments/assets/858a34e5-6c64-461f-9dfc-cb4f0af101d0" />
 
 ```bash
 cd ~/environment
@@ -145,7 +145,7 @@ mkdir pipeline
 cd pipeline
 ```
 
-19
+<img width="612" height="28" alt="image" src="https://github.com/user-attachments/assets/31f07cca-d997-47b7-8afe-7610fbb61f87" />
 
 ```bash
 npx aws-cdk@2.x init app --language typescript
@@ -175,14 +175,14 @@ pipeline                    # CDK project root
     └── tsconfig.json
 ```
 
-20-22
+<img width="735" height="134" alt="image" src="https://github.com/user-attachments/assets/0c9fbfb0-fa39-49f2-a6c4-15147d9a8e9a" />
 
 > [!NOTE]
 > Leave other instances of *PipelineStack* as is in the **pipeline.ts** file.
 
 ### Pipeline as code
 
-23-24
+<img width="650" height="58" alt="image" src="https://github.com/user-attachments/assets/dbc3b566-8122-449e-aa91-765a874f2dbb" />
 
 > [!NOTE]
 > You will add code to this file later to build the CI/CD pipeline.
@@ -190,20 +190,20 @@ pipeline                    # CDK project root
  > [!NOTE] 
  > AWS CDK automatically compiles the code whenever it needs to run your application. However, it can be useful to compile manually to check for errors and to run tests.
 
-25
+<img width="626" height="29" alt="image" src="https://github.com/user-attachments/assets/07497d04-42ed-430a-9391-0352ae92a8a8" />
 
 ```bash
 cd ~/environment/pipeline
 npm run build
 ```
 
-26
+<img width="692" height="45" alt="image" src="https://github.com/user-attachments/assets/645d6e65-655d-4481-9104-c8b54315c30a" />
 
 ```bash
 cdk bootstrap
 ```
 
-27
+<img width="579" height="30" alt="image" src="https://github.com/user-attachments/assets/115590f1-49e9-4404-8efc-3810b839862e" />
 
 ```bash
 cdk deploy
@@ -212,7 +212,7 @@ cdk deploy
 
 A new cloud stack has been created in your account: **bookmark-app-cicd**.
 
-28-29
+<img width="723" height="86" alt="image" src="https://github.com/user-attachments/assets/26e9ba9a-c56b-43f2-b243-6e6ec8ab3cef" />
 
 ## Task 4: Creating stages
 
@@ -221,7 +221,7 @@ In this task, you build the artifacts bucket and add the source stage, build sta
 ### Artifacts bucket
 Each CodePipeline needs an artifacts bucket, also known as an artifact store. CodePipeline uses this bucket to pass artifacts to the downstream jobs, and it’s also where AWS SAM uploads the artifacts during the build process. In this step you will specify the existing *LabServerlessBucket* bucket as CodePipeline’s artifact bucket.
 
-30
+<img width="743" height="42" alt="image" src="https://github.com/user-attachments/assets/c09e2fa1-02dd-41e2-a5b2-d2c8c4899a6c" />
 
 ```typescript
 // lib/pipeline-stack.ts
@@ -253,7 +253,7 @@ export class PipelineStack extends cdk.Stack {
 }
 ```
 
-31-32
+<img width="748" height="62" alt="image" src="https://github.com/user-attachments/assets/2a4d439d-5b75-491b-8195-7e4ad9de02b6" />
 
 ```bash
 cdk deploy
@@ -262,12 +262,12 @@ cdk deploy
 > [!NOTE]
 > If you get a build error, make sure that all of the @aws-cdk dependencies in the **package.json** file have the same version number. If not, fix the version numbers, delete the node_modules, and run npm install.
 
-33-34
+<img width="721" height="88" alt="image" src="https://github.com/user-attachments/assets/d55ee0b2-e8d0-47a2-b231-46a7fbd33edf" />
 
 ### Source stage
 The source stage is the first step of any CI/CD pipeline, and it represents your source code. This stage is in charge of initiating the pipeline based on new code changes (that is, Git push or pull requests). In this section of the lab, use CodeCommit as the source provider, but CodePipeline also supports Amazon S3, GitHub, and Amazon Elastic Container Registry (Amazon ECR) as source providers.
 
-35
+<img width="735" height="46" alt="image" src="https://github.com/user-attachments/assets/7da6106c-4c42-4075-b49a-2818a1359233" />
 
 ```typescript
 // Import existing CodeCommit app-code repository
@@ -330,8 +330,7 @@ Also notice how a **sourceOutput** object is defined as a pipeline artifact. Thi
 
 The build stage is where AWS SAM builds and packages your serverless application. Use CodeBuild as the build provider for your pipeline. CodeBuild is a great option because you pay for only the time when your build is running, which makes it cost-effective compared to running a dedicated build server 24 hours a day. The service is also container based, which means that you can bring your own Docker container image where your build runs or use a managed image that CodeBuild provides.
 
-
-36
+<img width="682" height="40" alt="image" src="https://github.com/user-attachments/assets/04c92897-4129-4183-adcf-a51585c3b3fc" />
 
 ```typescript
 // Declare build output as artifacts
@@ -381,27 +380,27 @@ The build stage is where AWS SAM builds and packages your serverless application
 
 The roles are scoped to the required privileges as a best practice. You may also create them within AWS CDK as stack resources.
 
-37
+<img width="521" height="26" alt="image" src="https://github.com/user-attachments/assets/a7ee0b4b-bd31-409d-b574-7ee0cd1db22c" />
 
 ```bash
 cdk deploy
 ```
 
-38
+<img width="679" height="29" alt="image" src="https://github.com/user-attachments/assets/57a74ddd-a478-4a21-b561-cca11f3ab1d6" />
 
 > [!NOTE]
 > Wait for the above step to complete, before proceeding to the next step. This might take a few minutes.
 
-39-40
+<img width="720" height="88" alt="image" src="https://github.com/user-attachments/assets/9a0c9d6a-3a83-42a3-8701-f78471be21be" />
 
 The build step should have failed. This is expected because you haven’t specified what commands to run during the build yet, so CodeBuild doesn’t know how to build the serverless application. To fix this issue, you need to build the **buildspec** file. A **buildspec** file is a series of commands in YAML format that CodeBuild runs to build your application. This file is placed in the root folder of an AWS SAM application, and CodeBuild automatically finds it and runs it during build time.
 
-41-42
+<img width="749" height="80" alt="image" src="https://github.com/user-attachments/assets/52d77384-bc15-4116-96c1-cdabfdd8962d" />
 
 > [!NOTE]
 > The extension of the file can be either .yml or .yaml, and CodeBuild finds it either way.
 
-43
+<img width="456" height="28" alt="image" src="https://github.com/user-attachments/assets/38266b27-a2a4-4686-872d-ce7dd67a0cf6" />
 
 ```yaml
 # ~/environment/app-code/buildspec.yml
@@ -444,7 +443,7 @@ Examine the commands in the *buildspec.yml* file:
 * The sam package command creates a ZIP file of your code and dependencies, and uploads it to Amazon S3.
 * The sam package command then returns a copy of your AWS SAM template, replacing references to local artifacts with the Amazon S3 location where the command uploaded the artifacts.
 
-44
+<img width="744" height="28" alt="image" src="https://github.com/user-attachments/assets/e991f1c2-81dd-4056-9459-0a5e8b194f5b" />
 
 ```bash
 cd ~/environment/app-code
@@ -457,7 +456,7 @@ git push
 
 The deploy stage is where your AWS SAM application and all of its resources are created in an AWS account. The most common way to do this is by using CloudFormation ChangeSets to deploy. This means that this stage has two actions: CreateChangeSet and Deploy.
 
-45
+<img width="739" height="47" alt="image" src="https://github.com/user-attachments/assets/fee0c07a-e955-4b0a-85b1-6fffa2df946e" />
 
 ```typescript
 // Deploy stage
@@ -509,7 +508,7 @@ The roles are scoped to the required privileges as a best practice. You may also
 > [!NOTE] 
 > Open the context (right-click) menu on this pipeline-stack.ts link and choose the option to save the complete version of pipeline-stack.ts file to your computer for reference.
 
-46
+<img width="597" height="28" alt="image" src="https://github.com/user-attachments/assets/e513e2d8-0829-47f5-88e5-5634a8bdf336" />
 
 ```bash
 cd ~/environment/pipeline
@@ -519,20 +518,24 @@ cdk deploy
 > [!NOTE]
 > Wait for the above step to complete, before proceeding to the next step. This might take a few minutes.
 
-47
+<img width="415" height="30" alt="image" src="https://github.com/user-attachments/assets/b61144cc-f52d-403d-8900-a0d33ad74800" />
 
 > [!NOTE]
 > Make certain you are in the correct region.
 
-50
+<img width="710" height="84" alt="image" src="https://github.com/user-attachments/assets/27c041f2-ca5a-4a74-a0b3-b715750f2368" />
 
+> [!NOTE]
+> This initiates a new run of the pipeline.
+
+<img width="734" height="51" alt="image" src="https://github.com/user-attachments/assets/beef59c4-1500-4dda-8474-a311aecbcd80" />
 
 Congratulations! You have created a CI/CD pipeline for a serverless application.
 
 > [!NOTE]
 > It takes several minutes for the pipeline to run.
 
-51-52
+<img width="721" height="86" alt="image" src="https://github.com/user-attachments/assets/881dfda5-52dc-4627-a78f-354c9039d059" />
 
 This tab lists all of the resources created that are defined in the AWS SAM template.
 
@@ -540,13 +543,12 @@ This tab lists all of the resources created that are defined in the AWS SAM temp
 
 In this task, you start by using Artillery, which is a load testing and functionality tool. You run the **simple-post.yaml** file from the **test** folder under **app-code** in VS Code. This adds bookmarks by invoking the **createBookmark** function.
 
-
-53-54
+<img width="713" height="62" alt="image" src="https://github.com/user-attachments/assets/4db5f4f3-ebf3-49cb-8767-8179863c0f74" />
 
 > [!NOTE]
 > The VS Code IDE contains two **test** folders. Expand the **test** folder that is a subfolder of **app-code** and not the test folder that is a subfolder of the **pipeline** folder.
 
-55-56
+<img width="743" height="56" alt="image" src="https://github.com/user-attachments/assets/138ba143-eaf6-4bc7-8f60-3fb8657c4751" />
 
 ```bash
 cd ~/environment/app-code/test
@@ -560,7 +562,7 @@ cd ..
 > [!NOTE]
 > The script is running the AWS CLI command to get the API Gateway ID and the AWS region to construct the API Gateway URL. This URL is then substituted in the placeholder <API_GATEWAY_URL> in the **simple-post.yaml** file.
 
-57
+<img width="500" height="27" alt="image" src="https://github.com/user-attachments/assets/2f215617-38a7-4fab-a76c-69af0a8eca1e" />
 
 ```bash
 cd ~/environment/app-code/test && artillery run simple-post.yaml
@@ -568,7 +570,7 @@ cd ~/environment/app-code/test && artillery run simple-post.yaml
 
 The **simple-post.yaml** script runs for 30 seconds, adding data through the API and then invoking the **createBookmark** function.
 
-58-62
+<img width="742" height="221" alt="image" src="https://github.com/user-attachments/assets/86baac1c-5206-4048-9094-f46490342b1f" />
 
 ```bash
 source ~/environment/app-code/labVariables
@@ -585,7 +587,7 @@ curl ${API_GATEWAY_URL}/bookmarks/${ID}
 
 Now, update the **getBookmark** Lambda function and observe how the function is automatically deployed with the pipeline.
 
-63-65
+<img width="613" height="97" alt="image" src="https://github.com/user-attachments/assets/37a819fa-13f3-414e-a7d5-115b7d6a19bf" />
 
 ```typescript
 return {
@@ -595,7 +597,7 @@ return {
   };
 ```
 
-66
+<img width="578" height="25" alt="image" src="https://github.com/user-attachments/assets/56fa053d-edbe-4bc4-814f-e52d74a08e5e" />
 
 ```bash
 cd ~/environment/app-code
@@ -606,7 +608,7 @@ git push
 
 The pipeline should automatically begin the build process and deploy the AWS SAM template with the changes.
 
-67
+<img width="457" height="24" alt="image" src="https://github.com/user-attachments/assets/d12c9f8c-604c-4112-bf58-cdfe1c0ab935" />
 
 Make sure that the deployment is completed successfully before moving on to the next step.
 
